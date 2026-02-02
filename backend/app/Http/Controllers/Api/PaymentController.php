@@ -13,9 +13,10 @@ class PaymentController extends Controller
     {
         try {
             $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-            $vnp_Returnurl = "http://localhost:3000/payment-return";
-            $vnp_TmnCode = "2QXG293Q";
-            $vnp_HashSecret = "GQHINHPNYOYOIPYSTNBBXFEXNIDZOTYI";
+            $vnp_TmnCode = env('VNP_TMN_CODE'); 
+            $vnp_HashSecret = env('VNP_HASH_SECRET');
+            // Ensure return URL is trimmed and has a sensible fallback
+            $vnp_Returnurl = trim(env('VNP_RETURN_URL', 'http://127.0.0.1:8000/api/payment/vnpay-return'));
 
             $bookingId = $request->booking_id;
             $price = $request->price;
@@ -83,7 +84,7 @@ class PaymentController extends Controller
 
     public function vnpayReturn(Request $request)
     {
-        $vnp_HashSecret = "GQHINHPNYOYOIPYSTNBBXFEXNIDZOTYI"; 
+        $vnp_HashSecret = env('VNP_HASH_SECRET');
         $vnp_SecureHash = $request->vnp_SecureHash;
         $inputData = $request->all();
         unset($inputData['vnp_SecureHash']);
@@ -104,6 +105,25 @@ class PaymentController extends Controller
 
         if ($secureHash == $vnp_SecureHash) {
             if ($request->vnp_ResponseCode == '00') {
+                // Payment successful - update database
+                $paymentId = $request->vnp_TxnRef;
+                $payment = Payment::find($paymentId);
+                
+                if ($payment) {
+                    // Update payment status to completed
+                    $payment->update([
+                        'status' => 'completed',
+                        'transaction_id' => $request->vnp_TransactionNo,
+                        'response_code' => $request->vnp_ResponseCode
+                    ]);
+                    
+                    // Update booking status to paid
+                    $booking = Booking::find($payment->booking_id);
+                    if ($booking) {
+                        $booking->update(['status' => 'paid']);
+                    }
+                }
+                
                 return response()->json(['status' => 'success', 'message' => 'Thanh toán thành công']);
             }
             return response()->json(['status' => 'error', 'message' => 'Thanh toán thất bại hoặc bị hủy']);

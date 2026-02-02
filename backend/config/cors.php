@@ -9,6 +9,7 @@ return [
     'allowed_origins' => [
         'http://localhost:5173',
         'http://127.0.0.1:5173',
+        'https://claretta-chequered-shavonda.ngrok-free.dev',
     ],
 
     'allowed_origins_patterns' => [],

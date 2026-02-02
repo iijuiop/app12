@@ -27,6 +27,7 @@ import ServiceBooking from "../pages/services/ServiceBooking";
 import TourPage from "../pages/tours/TourPage";
 import TourDetail from "../pages/tours/TourDetail";
 import Payment from "../pages/tours/Payment";
+import PaymentSuccess from "../pages/tours/PaymentSuccess";
 import BookingHistory from "../pages/bookings/BookingHistory";
 import BookingDetail from "../pages/bookings/BookingDetail";
 
@@ -57,6 +58,8 @@ function AppRoutes() {
         <Route path="/tours" element={<TourPage />} />
         <Route path="/tours/:id" element={<TourDetail />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/payment-return" element={<PaymentSuccess />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/bookings" element={<BookingHistory />} />
         <Route path="/bookings/:id" element={<BookingDetail />} />
       </Route>

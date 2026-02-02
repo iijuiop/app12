@@ -56,7 +56,6 @@ export default function Payment() {
       const data = await response.json();
       
       console.log("Payment response:", data);
-      
       if (data.payment_url) {
         window.location.href = data.payment_url;
       } else {
