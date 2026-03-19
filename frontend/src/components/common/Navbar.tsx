@@ -5,7 +5,6 @@ const menus = [
   { label: "Địa điểm", path: "/locations" },
   { label: "Tour", path: "/tours" },
   { label: "Dịch vụ", path: "/services" },
-  { label: "Lịch sử đặt", path: "/bookings" },
 ];
 
 export default function Navbar() {

@@ -1,8 +1,8 @@
 const explores = [
   {
-    title: "Scenery",
-    image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
-    slug: "nature",
+    title: "Ưu đãi",
+    image: "https://images.unsplash.com/photo-1519125323398-675f0ddb6308", // Ưu đãi (promotion/offer) image
+    slug: "offers",
   },
   {
     title: "Food",

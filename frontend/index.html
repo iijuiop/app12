@@ -49,6 +49,62 @@
 <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Embedded Chatbot n8n -->
+    <script src="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js" type="module"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/dist/style.css" rel="stylesheet" />
+    <script type="module">
+    import { createChat } from 'https://cdn.jsdelivr.net/npm/@n8n/chat/dist/chat.bundle.es.js';
+
+    createChat({
+        webhookUrl: 'http://localhost:5678/webhook/77b5c6a2-50ba-439f-9a9b-2c800afe38e8/chat',
+        webhookConfig: {
+            method: 'POST'
+        },
+        showWelcomeScreen: false,
+        renderMarkdown: false, // Disable markdown rendering để tránh lỗi parse
+        // Đảm bảo content ở đây là String thuần túy
+        initialMessages: [
+            {
+                type: 'text',
+                role: 'assistant',
+                content: 'Chào bạn! Tôi là Trợ lý Du lịch AI, tôi có thể giúp gì cho bạn?'
+            }
+        ],
+        i18n: {
+            en: {
+                title: 'Trợ lý Du lịch AI',
+                assistantName: 'Trợ lý Du lịch AI',
+                userName: 'Khách hàng',
+                placeholder: 'Nhập câu hỏi của bạn...',
+            }
+        },
+        responses: {
+            text: (data) => {
+                // Bước kiểm tra quan trọng nhất để tránh lỗi "should be a String"
+                if (typeof data === 'string') return data;
+                
+                // Nếu data là null hoặc undefined
+                if (data == null) return "Không có phản hồi từ hệ thống.";
+                
+                // Nếu n8n trả về Object chứa field 'output' (phổ biến với AI Agent)
+                if (data && typeof data === 'object') {
+                    if (Array.isArray(data) && data.length > 0) {
+                        const firstItem = data[0];
+                        if (typeof firstItem === 'string') return firstItem;
+                        return String(firstItem?.output || JSON.stringify(firstItem));
+                    }
+                    if (typeof data.output === 'string') return data.output;
+                    return String(data.output || JSON.stringify(data));
+                }
+                
+                // Chuyển mọi thứ khác sang String để an toàn cho UI
+                return String(data || "Không có phản hồi từ hệ thống.");
+            }
+        }
+    });
+</script>
+</script>
 </body>
 
 </html>

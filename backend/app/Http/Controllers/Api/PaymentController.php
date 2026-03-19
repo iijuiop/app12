@@ -15,7 +15,6 @@ class PaymentController extends Controller
             $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
             $vnp_TmnCode = env('VNP_TMN_CODE'); 
             $vnp_HashSecret = env('VNP_HASH_SECRET');
-            // Ensure return URL is trimmed and has a sensible fallback
             $vnp_Returnurl = trim(env('VNP_RETURN_URL', 'http://127.0.0.1:8000/api/payment/vnpay-return'));
 
             $bookingId = $request->booking_id;

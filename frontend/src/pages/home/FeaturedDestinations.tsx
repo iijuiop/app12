@@ -1,46 +1,66 @@
-const destinations = [
-  {
-    name: "Ha Long Bay",
-    country: "Vietnam",
-    image: "https://images.unsplash.com/photo-1549880338-65ddcdfd017b",
-  },
-  {
-    name: "Bali",
-    country: "Indonesia",
-    image: "https://images.unsplash.com/photo-1558005530-a7958896ec60",
-  },
-  {
-    name: "Angkor Wat",
-    country: "Cambodia",
-    image: "https://images.unsplash.com/photo-1548013146-72479768bada",
-  },
-  {
-    name: "Phuket",
-    country: "Thailand",
-    image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-  },
-];
+import { useEffect, useState } from "react";
+
+interface Location {
+  id: number;
+  name: string;
+  image_url: string;
+  country_name: string;
+}
 
 export default function FeaturedDestinations() {
-  return (
-    <section className="mb-20">
-      <h2 className="text-2xl font-bold mb-6">Địa điểm nổi bật</h2>
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [index, setIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  
+  const visibleCount = 4; // Số lượng ảnh hiển thị cùng lúc
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {destinations.map((item) => (
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/locations")
+      .then((res) => res.json())
+      .then((data) => setLocations(data));
+  }, []);
+
+  // Tự động chạy slider
+  useEffect(() => {
+    if (locations.length === 0 || isPaused) return;
+
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % locations.length);
+    }, 3000); // 3 giây chuyển 1 lần
+
+    return () => clearInterval(timer);
+  }, [locations, isPaused]);
+
+  // Xử lý logic hiển thị xoay vòng (carousel)
+  const display = [];
+  if (locations.length > 0) {
+    for (let i = 0; i < visibleCount; i++) {
+      display.push(locations[(index + i) % locations.length]);
+    }
+  }
+
+  return (
+    <section className="mb-20 overflow-hidden">
+      <h2 className="text-2xl font-bold mb-6">Địa điểm nổi bật</h2>
+      <div
+        className="flex gap-6 transition-all duration-500"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {display.map((item, idx) => (
           <a
-            key={item.name}
-            href="/locations"
-            className="rounded-2xl overflow-hidden shadow hover:shadow-lg transition"
+            key={`${item.id}-${idx}`} // Dùng cả idx để tránh trùng key khi xoay vòng
+            href={`/locations/${item.id}`}
+            className="rounded-2xl overflow-hidden shadow hover:shadow-lg transition flex-shrink-0 w-[calc(25%-1.25rem)]"
           >
             <img
-              src={item.image}
+              src={item.image_url}
               className="w-full h-48 object-cover"
               alt={item.name}
             />
             <div className="p-4">
-              <h3 className="font-semibold">{item.name}</h3>
-              <p className="text-sm text-gray-500">{item.country}</p>
+              <h3 className="font-semibold truncate">{item.name}</h3>
+              <p className="text-sm text-gray-500">{item.country_name || ''}</p>
             </div>
           </a>
         ))}
